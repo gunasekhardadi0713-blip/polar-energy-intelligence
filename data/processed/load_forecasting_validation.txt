@@ -1,0 +1,128 @@
+============================================================
+SIH 2026 PS 26061 - Phase 2 Electricity Load Forecasting Validation Report
+============================================================
+Source Feature Dataset: data/processed/ps26061_features.csv
+Model Artifact: models\ps26061_load_forecaster.pkl
+Test Predictions CSV: data/processed/load_forecasting_results.csv
+
+1. TRAIN / TEST METHODOLOGY
+------------------------------------------------------------
+ - Split Strategy: Chronological (temporal) train/test split per station.
+ - Split Ratio   : First 80% of data -> Training set; Final 20% of data -> Test set.
+ - Shuffling     : Strict NO SHUFFLE. Time order is strictly maintained.
+ - Leakage Check : Zero future observations entered training data.
+ - Total Training Rows: 27488 (80.0%)
+ - Total Test Rows    : 6876 (20.0%)
+ - Total Dataset Rows : 34364
+
+2. STATION COVERAGE & TEMPORAL SPLIT RANGES
+------------------------------------------------------------
+Station: Casey
+  Total Rows : 8591
+  Train Rows : 6872 (2010-01-08 00:00:00 to 2010-10-21 07:00:00)
+  Test Rows  : 1719 (2010-10-21 08:00:00 to 2010-12-31 22:00:00)
+
+Station: Davis
+  Total Rows : 8591
+  Train Rows : 6872 (2010-01-08 00:00:00 to 2010-10-21 07:00:00)
+  Test Rows  : 1719 (2010-10-21 08:00:00 to 2010-12-31 22:00:00)
+
+Station: Macquarie Island
+  Total Rows : 8591
+  Train Rows : 6872 (2010-01-08 00:00:00 to 2010-10-21 07:00:00)
+  Test Rows  : 1719 (2010-10-21 08:00:00 to 2010-12-31 22:00:00)
+
+Station: Mawson
+  Total Rows : 8591
+  Train Rows : 6872 (2010-01-08 00:00:00 to 2010-10-21 07:00:00)
+  Test Rows  : 1719 (2010-10-21 08:00:00 to 2010-12-31 22:00:00)
+
+3. MODEL CONFIGURATION & FEATURE SET
+------------------------------------------------------------
+Target Variable: target_load_kwh (next hour electricity load)
+Excluded Columns: ['station', 'target_load_kwh', 'timestamp_utc']
+Feature Count   : 19 features
+Features Used   :
+   1. hour
+   2. day
+   3. month
+   4. day_of_week
+   5. hour_sin
+   6. hour_cos
+   7. month_sin
+   8. month_cos
+   9. temperature_c
+  10. wind_speed_ms
+  11. solar_irradiance_wm2
+  12. electricity_load_kwh
+  13. load_lag_1
+  14. load_lag_3
+  15. load_lag_6
+  16. load_lag_24
+  17. load_lag_168
+  18. load_rolling_mean_6
+  19. load_rolling_mean_24
+
+Model A: Persistence Baseline
+  - Prediction Rule: prediction = load_lag_1 (load at t-1)
+
+Model B: XGBoost Regressor (Lightweight Configuration)
+  - n_estimators     : 150
+  - max_depth        : 5
+  - learning_rate    : 0.05
+  - subsample        : 0.8
+  - colsample_bytree : 0.8
+  - objective        : reg:squarederror
+  - random_state     : 42
+
+4. OVERALL EVALUATION METRICS ON TEST SET
+------------------------------------------------------------
+Metric      | Persistence Baseline | XGBoost Regressor | Relative Improvement
+------------|----------------------|-------------------|---------------------
+MAE (kWh)   |              13.3911 |            9.1318 | -31.81% (Error Reduction)
+RMSE (kWh)  |              18.1354 |           12.2775 | -32.30% (Error Reduction)
+R² Score    |               0.9128 |            0.9601 | +0.0472 (Accuracy Gain)
+
+5. STATION-BY-STATION BREAKDOWN
+------------------------------------------------------------
+Station: Casey
+  - Baseline : MAE = 19.0396 kWh, RMSE = 23.8921 kWh, R² = -0.6907
+  - XGBoost  : MAE = 12.5999 kWh, RMSE = 15.8724 kWh, R² = 0.2538
+  - MAE Improvement: 33.82% lower error
+
+Station: Davis
+  - Baseline : MAE = 17.9912 kWh, RMSE = 22.3784 kWh, R² = -0.5942
+  - XGBoost  : MAE = 12.2649 kWh, RMSE = 15.2602 kWh, R² = 0.2587
+  - MAE Improvement: 31.83% lower error
+
+Station: Macquarie Island
+  - Baseline : MAE = 5.1759 kWh, RMSE = 6.4545 kWh, R² = -0.4316
+  - XGBoost  : MAE = 3.7053 kWh, RMSE = 4.5562 kWh, R² = 0.2866
+  - MAE Improvement: 28.41% lower error
+
+Station: Mawson
+  - Baseline : MAE = 11.3576 kWh, RMSE = 14.2229 kWh, R² = -0.5668
+  - XGBoost  : MAE = 7.9570 kWh, RMSE = 9.8683 kWh, R² = 0.2457
+  - MAE Improvement: 29.94% lower error
+
+6. TOP 10 FEATURE IMPORTANCES (XGBOOST)
+------------------------------------------------------------
+   1. load_rolling_mean_24     : 0.4711
+   2. load_rolling_mean_6      : 0.2559
+   3. load_lag_168             : 0.0898
+   4. load_lag_6               : 0.0842
+   5. electricity_load_kwh     : 0.0461
+   6. load_lag_24              : 0.0179
+   7. month_cos                : 0.0090
+   8. hour_sin                 : 0.0052
+   9. load_lag_1               : 0.0044
+  10. hour_cos                 : 0.0039
+
+7. VERIFICATION & LEAKAGE CHECK CONFIRMATION
+------------------------------------------------------------
+ - Chronological splitting used: YES (first 80% train, last 20% test per station).
+ - Target leakage introduced   : NO. Target (target_load_kwh) is strictly t+1.
+   No target column or future timestamp was accessible during training or inference.
+ - Station isolation maintained: YES. Splits performed per station independently.
+ - Status: PHASE 2 LOAD FORECASTING PIPELINE VERIFIED & READY FOR ENERGY DISPATCH OPTIMIZATION
+============================================================

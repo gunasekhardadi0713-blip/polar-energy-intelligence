@@ -1,0 +1,136 @@
+============================================================
+SIH 2026 PS 26061 - Phase 2B Renewable Energy Forecasting Validation Report
+============================================================
+Source Dataset: data/final/ps26061_prototype_hourly_2010.csv
+Model Artifact: models\ps26061_renewable_forecaster.pkl
+Predictions CSV: data/processed/renewable_forecasting_results.csv
+
+CRITICAL PROTOCOL DECLARATION:
+------------------------------------------------------------
+EXPLICIT NOTICE: The renewable-generation target values ('renewable_available_kwh_derived')
+and underlying generation columns are PROTOTYPE-DERIVED / SIMULATED values synthesized
+from historical monthly series and ERA5-compatible proxies for the PS26061 demonstration.
+They are treated explicitly as prototype simulation data and NOT as raw measured
+station telemetry.
+
+1. TRAIN / TEST METHODOLOGY
+------------------------------------------------------------
+ - Split Strategy: Chronological (temporal) split independently per station.
+ - Split Ratio   : First 80% chronologically -> Training set (28,032 rows across 4 stations).
+ - Split Ratio   : Final 20% chronologically -> Test set (7,008 rows across 4 stations).
+ - Shuffling     : Strict NO SHUFFLE. Temporal order strictly preserved.
+ - Leakage Check : Zero future observations entered training sets.
+ - Total Train Rows: 28032 (80.0%)
+ - Total Test Rows : 7008 (20.0%)
+ - Total Rows      : 35040
+
+2. STATION COVERAGE & TEMPORAL BOUNDS
+------------------------------------------------------------
+Station: Casey
+  Total Rows : 8760
+  Train Rows : 7008 (2010-01-01T00:00:00+00:00 to 2010-10-19T23:00:00+00:00)
+  Test Rows  : 1752 (2010-10-20T00:00:00+00:00 to 2010-12-31T23:00:00+00:00)
+
+Station: Davis
+  Total Rows : 8760
+  Train Rows : 7008 (2010-01-01T00:00:00+00:00 to 2010-10-19T23:00:00+00:00)
+  Test Rows  : 1752 (2010-10-20T00:00:00+00:00 to 2010-12-31T23:00:00+00:00)
+
+Station: Macquarie Island
+  Total Rows : 8760
+  Train Rows : 7008 (2010-01-01T00:00:00+00:00 to 2010-10-19T23:00:00+00:00)
+  Test Rows  : 1752 (2010-10-20T00:00:00+00:00 to 2010-12-31T23:00:00+00:00)
+
+Station: Mawson
+  Total Rows : 8760
+  Train Rows : 7008 (2010-01-01T00:00:00+00:00 to 2010-10-19T23:00:00+00:00)
+  Test Rows  : 1752 (2010-10-20T00:00:00+00:00 to 2010-12-31T23:00:00+00:00)
+
+3. FEATURE SELECTION & LEAKAGE AUDIT
+------------------------------------------------------------
+Allowed Features Used at Prediction Time:
+  1. hour (0 to 23)
+  2. month (1 to 12)
+  3. day_of_week (0 to 6, Monday=0)
+  4. hour_sin (sin(2*pi*hour/24))
+  5. hour_cos (cos(2*pi*hour/24))
+  6. month_sin (sin(2*pi*month/12))
+  7. month_cos (cos(2*pi*month/12))
+  8. temperature_c (ambient temperature proxy)
+  9. wind_speed_ms (anemometer wind speed)
+ 10. solar_irradiance_wm2 (global horizontal irradiance proxy)
+
+Strictly Excluded Columns (as mandated by Rule 4):
+  - renewable_available_kwh (excluded from input features)
+  - wind_generation_kwh (excluded)
+  - solar_generation_kwh (excluded)
+  - battery_soc_kwh, battery_charge_kwh, battery_discharge_kwh (excluded)
+  - diesel_generation_kwh, diesel_fuel_litres (excluded)
+  - future observations / lookahead variables (excluded)
+
+4. MODEL CONFIGURATION
+------------------------------------------------------------
+Model A: Persistence Baseline
+  - Formulation: prediction(t) = renewable_available_kwh(t - 1)
+  - Strictly historical (previous hour) observation.
+
+Model B: Lightweight XGBoost Regressor
+  - n_estimators     : 150
+  - max_depth        : 5
+  - learning_rate    : 0.05
+  - subsample        : 0.8
+  - colsample_bytree : 0.8
+  - objective        : reg:squarederror
+  - random_state     : 42
+  - post-processing  : non-negative clip (prediction >= 0.0 kWh)
+
+5. OVERALL EVALUATION METRICS ON OUT-OF-SAMPLE TEST SET
+------------------------------------------------------------
+Metric      | Persistence Baseline | XGBoost Regressor | Relative Improvement
+------------|----------------------|-------------------|---------------------
+MAE (kWh)   |              20.7864 |           14.5684 | -29.91% (Error Reduction)
+RMSE (kWh)  |              33.6273 |           27.8245 | -17.26% (Error Reduction)
+R² Score    |               0.9143 |            0.9413 | +0.0270 (Accuracy Gain)
+
+6. STATION-BY-STATION BREAKDOWN
+------------------------------------------------------------
+Station: Casey
+  - Baseline : MAE = 18.8811 kWh, RMSE = 24.3166 kWh, R² = 0.3079
+  - XGBoost  : MAE = 6.6787 kWh, RMSE = 9.5343 kWh, R² = 0.8936
+  - MAE Improvement: 64.63% lower error
+
+Station: Davis
+  - Baseline : MAE = 15.6219 kWh, RMSE = 19.7621 kWh, R² = 0.4661
+  - XGBoost  : MAE = 4.4639 kWh, RMSE = 5.7988 kWh, R² = 0.9540
+  - MAE Improvement: 71.43% lower error
+
+Station: Macquarie Island
+  - Baseline : MAE = 13.0559 kWh, RMSE = 16.7081 kWh, R² = 0.0312
+  - XGBoost  : MAE = 3.9299 kWh, RMSE = 6.0457 kWh, R² = 0.8731
+  - MAE Improvement: 69.90% lower error
+
+Station: Mawson
+  - Baseline : MAE = 35.5869 kWh, RMSE = 57.1154 kWh, R² = 0.1127
+  - XGBoost  : MAE = 43.2011 kWh, RMSE = 54.1824 kWh, R² = 0.2015
+  - MAE Improvement: -21.40% lower error
+
+7. FEATURE IMPORTANCE RANKING (XGBOOST)
+------------------------------------------------------------
+   1. wind_speed_ms            : 0.5383
+   2. solar_irradiance_wm2     : 0.1543
+   3. temperature_c            : 0.1201
+   4. hour_cos                 : 0.0539
+   5. month_cos                : 0.0506
+   6. month                    : 0.0228
+   7. month_sin                : 0.0217
+   8. hour                     : 0.0216
+   9. hour_sin                 : 0.0165
+  10. day_of_week              : 0.0001
+
+8. VERIFICATION SUMMARY
+------------------------------------------------------------
+ - Protected files untouched  : YES
+ - Chronological split used   : YES (80/20 train/test per station)
+ - Target leakage avoided     : YES (zero future or forbidden generation/battery features used)
+ - Status                     : PHASE 2B RENEWABLE FORECASTING COMPLETE & VALIDATED
+============================================================

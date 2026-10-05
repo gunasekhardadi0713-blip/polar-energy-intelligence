@@ -1,0 +1,123 @@
+============================================================
+SIH 2026 PS 26061 - Energy Optimizer Physics & Technical Audit
+============================================================
+Audited Dataset: data/processed/energy_optimization_results.csv
+Total Timesteps Audited: 6,876 hours (1,719 hours * 4 stations)
+
+EXECUTIVE AUDIT SUMMARY
+------------------------------------------------------------
+Check 1: Battery SOC Conservation         : PASS
+Check 2: Charge / Discharge Power Limits  : PASS
+Check 3: Renewable Upper Bound Limits     : PASS
+Check 4: Diesel Dispatch Logic & Limits   : PASS
+Check 5: Hourly Energy Balance (Load)     : PASS
+Check 6: Renewable Stream Accounting      : PASS
+Check 7: Independent Station Isolation    : PASS
+Check 8: Mawson Diesel-Zero Sanity Audit  : PASS
+
+OVERALL AUDIT RESULT: ALL CHECKS PASSED (100% COMPLIANT)
+
+============================================================
+DETAILED TECHNICAL AUDIT BREAKDOWN
+============================================================
+
+1. BATTERY SOC CONSERVATION AUDIT
+------------------------------------------------------------
+Formulas verified at every hourly timestep t:
+  - When charging  : SOC(t) = SOC(t-1) + [battery_charge_kwh * charge_efficiency]
+  - When discharging: SOC(t) = SOC(t-1) - [battery_discharge_kwh / discharge_efficiency]
+  - When idle      : SOC(t) = SOC(t-1)
+Parameters used: Capacity=1500 kWh, Min_SOC=150 kWh, Initial_SOC=750 kWh, eta_c=0.95, eta_d=0.95.
+  - Maximum Observed SOC Conservation Discrepancy: 9.5000e-05 kWh (Within 4-decimal CSV rounding precision)
+  - Unexplained SOC jumps: 0 occurrences
+  - Result: PASS
+
+2. CHARGE / DISCHARGE POWER LIMITS AUDIT
+------------------------------------------------------------
+Limits: battery_charge_kwh <= 300 kW, battery_discharge_kwh <= 300 kW.
+  - Maximum Charge Power Observed   : 265.4123 kW (Limit: 300.0 kW) -> PASS
+  - Maximum Discharge Power Observed: 147.0467 kW (Limit: 300.0 kW) -> PASS
+  - Simultaneous Charge & Discharge : 0 occurrences (Strict mutual exclusion maintained) -> PASS
+  - Result: PASS
+
+3. RENEWABLE LIMITS AUDIT
+------------------------------------------------------------
+Verified constraints:
+  - renewable_to_load_kwh <= predicted_renewable_available_kwh (Cannot deliver more than generated)
+  - renewable_to_load_kwh <= actual_load_kwh (Cannot supply more than demand)
+  - Violations detected: 0 occurrences
+  - Result: PASS
+
+4. DIESEL LIMITS & DISPATCH PRIORITY AUDIT
+------------------------------------------------------------
+Verified constraints:
+  - diesel_to_load_kwh >= 0.0 (No reverse diesel generation or negative flows)
+  - Diesel generator is strictly the tertiary resource, activated only after
+    all available renewable energy and allowable battery discharge are exhausted.
+  - Violations detected: 0 occurrences
+  - Result: PASS
+
+5. HOURLY ENERGY BALANCE CONSERVATION AUDIT
+------------------------------------------------------------
+Governing physical equation verified across all 6,876 timesteps:
+  renewable_to_load_kwh + battery_discharge_kwh + diesel_to_load_kwh = actual_load_kwh
+  - Maximum Observed Energy Balance Error: 5.6843e-14 kWh
+  - Energy balance status: Exact to floating point precision (< 1e-13 kWh)
+  - Result: PASS
+
+6. RENEWABLE STREAM ACCOUNTING AUDIT
+------------------------------------------------------------
+Governing allocation equation:
+  renewable_to_load + renewable_to_battery + curtailed_renewable = predicted_renewable_available
+  - In the results schema, 'battery_charge_kwh' represents the electrical energy drawn
+    from the renewable surplus into the battery charger (renewable_to_battery).
+  - The chemical energy stored into battery capacity is: battery_charge_kwh * 0.95.
+  - Maximum Observed Renewable Accounting Error: 5.6843e-14 kWh
+  - Result: PASS
+
+7. STATION ISOLATION AUDIT
+------------------------------------------------------------
+Audit verification:
+  - Each station starts independently at initial_soc = 750.00 kWh.
+  - First timestep SOC for each station confirms independent reset:
+      * Casey           : Start SOC = 750.00 kWh (After t=0 dispatch: 595.2140 kWh)
+      * Davis           : Start SOC = 750.00 kWh (After t=0 dispatch: 649.8259 kWh)
+      * Macquarie Island: Start SOC = 750.00 kWh (After t=0 dispatch: 740.2672 kWh)
+      * Mawson          : Start SOC = 750.00 kWh (After t=0 dispatch: 994.3081 kWh)
+  - No cross-station state transfer or inheritance occurred.
+  - Result: PASS
+
+8. MAWSON DIESEL-ZERO TECHNICAL INSPECTION
+------------------------------------------------------------
+Finding: Optimized Diesel Generation at Mawson = 0.00 kWh across all 1,719 test hours.
+Technical Assessment: MATHEMATICALLY & PHYSICALLY CONSISTENT with station parameters.
+
+Quantitative Verification:
+  a. Load Demand vs Renewable Supply:
+     - Total Electrical Load Demand at Mawson  :   220,531.41 kWh (Mean: 128.29 kWh/h, Peak: 195.08 kWh/h)
+     - Total Predicted Renewable Generation    :   418,733.17 kWh (Mean: 243.59 kWh/h)
+     - Renewable-to-Load Ratio                 : 189.87% (Supply is nearly double total demand)
+  b. Surplus vs Deficit Distribution:
+     - Surplus Hours (Renewable >= Load)       : 1511 / 1719 hours (87.9%)
+     - Deficit Hours (Renewable < Load)        : 208 / 1719 hours (12.1%)
+  c. Deficit Severity vs Storage Capacity:
+     - Maximum Single-Hour Deficit             : 110.50 kWh (Well within 300 kW discharge capability)
+     - Deficit intervals are short-duration; high katabatic wind generation rapidly recharges the BESS.
+  d. Battery State of Charge Buffer:
+     - Lowest Battery SOC at Mawson            : 994.31 kWh
+     - Minimum Allowed Safe Reserve Limit      : 150.00 kWh
+     - Safety Buffer Above Minimum Limit       : +844.31 kWh
+     - Because the battery never dropped below 994.31 kWh, the 1,500 kWh BESS had ample
+       usable stored energy to buffer 100% of all deficits without requiring diesel backup.
+  - Result: PASS
+
+============================================================
+SUMMARY METRICS AUDIT TABLE
+============================================================
+Maximum SOC Conservation Error       : 9.5000e-05 kWh
+Maximum Observed Charge Power        : 265.4123 kW  (Permissible: <= 300 kW)
+Maximum Observed Discharge Power     : 147.0467 kW  (Permissible: <= 300 kW)
+Maximum Renewable Accounting Error   : 5.6843e-14 kWh
+Maximum Energy Balance Residual      : 5.6843e-14 kWh
+Mawson Zero-Diesel Status            : VERIFIED FULLY MATHEMATICALLY SOUND
+============================================================

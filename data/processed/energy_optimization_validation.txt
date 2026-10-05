@@ -1,0 +1,30 @@
+============================================================
+SIH 2026 PS 26061 - Energy Dispatch Optimization Validation
+============================================================
+Source Forecast Files:
+  - Load: data/processed/load_forecasting_results.csv
+  - Renewable: data/processed/renewable_forecasting_results.csv
+Results Output: data/processed/energy_optimization_results.csv
+
+1. CONSTRAINTS & SANITY AUDIT
+------------------------------------------------------------
+Negative Energy Flows Detected    : 0 (PASS: all flows >= 0.0)
+SOC Out-of-Bounds Violations      : 0 (PASS: all SOC within [150.0, 1500.0] kWh)
+Simultaneous Charge/Discharge     : 0 (PASS: strictly mutually exclusive)
+Maximum Energy Balance Discrepancy: 0.000000000000 kWh (PASS: exact match <= 1e-12)
+Station Isolation Confirmed       : YES (SOC reset to 750 kWh and tracked independently per station)
+Chronological Processing Confirmed: YES (strictly sequential hourly dispatch, no shuffling)
+No Future Lookahead Introduced    : YES (dispatch at timestep t relies only on state and forecasts at t)
+Complete Test Horizon Coverage    : YES (all 6876 timestamps matched across load and renewable)
+
+2. ENERGY BALANCE VERIFICATION FORMULA
+------------------------------------------------------------
+At every timestep t:
+  actual_load_kwh = renewable_to_load_kwh + battery_discharge_kwh + diesel_to_load_kwh
+  Maximum observed |Residual| over 6876 steps: 2.84e-14 kWh
+  Status: 100% PERFECT ENERGY BALANCE
+
+3. PROTOCOL STATUS
+------------------------------------------------------------
+Status: ALL VALIDATION GATES PASSED (DETERMINISTIC, EXPLAINABLE, OPTIMIZED)
+============================================================

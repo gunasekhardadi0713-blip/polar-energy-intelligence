@@ -1,0 +1,97 @@
+============================================================
+SIH 2026 PS 26061 - Feature Engineering Validation Report
+============================================================
+Input File: data/processed/ps26061_ml_dataset.csv
+Output Features File: data/processed/ps26061_features.csv
+
+1. ROW COUNTS
+------------------------------------------------------------
+Original Row Count: 35040
+Final Row Count   : 34364
+Rows Dropped      : 676 (168 initial lag boundary rows + 1 final horizon row per station = 169 rows * 4 stations = 676 rows)
+
+2. FEATURE NAMES
+------------------------------------------------------------
+Total Columns: 22
+Columns List:
+  1. timestamp_utc
+  2. station
+  3. hour
+  4. day
+  5. month
+  6. day_of_week
+  7. hour_sin
+  8. hour_cos
+  9. month_sin
+ 10. month_cos
+ 11. temperature_c
+ 12. wind_speed_ms
+ 13. solar_irradiance_wm2
+ 14. electricity_load_kwh
+ 15. load_lag_1
+ 16. load_lag_3
+ 17. load_lag_6
+ 18. load_lag_24
+ 19. load_lag_168
+ 20. load_rolling_mean_6
+ 21. load_rolling_mean_24
+ 22. target_load_kwh
+
+3. MISSING VALUES PER COLUMN
+------------------------------------------------------------
+ - timestamp_utc            : 0 missing
+ - station                  : 0 missing
+ - hour                     : 0 missing
+ - day                      : 0 missing
+ - month                    : 0 missing
+ - day_of_week              : 0 missing
+ - hour_sin                 : 0 missing
+ - hour_cos                 : 0 missing
+ - month_sin                : 0 missing
+ - month_cos                : 0 missing
+ - temperature_c            : 0 missing
+ - wind_speed_ms            : 0 missing
+ - solar_irradiance_wm2     : 0 missing
+ - electricity_load_kwh     : 0 missing
+ - load_lag_1               : 0 missing
+ - load_lag_3               : 0 missing
+ - load_lag_6               : 0 missing
+ - load_lag_24              : 0 missing
+ - load_lag_168             : 0 missing
+ - load_rolling_mean_6      : 0 missing
+ - load_rolling_mean_24     : 0 missing
+ - target_load_kwh          : 0 missing
+
+4. DUPLICATE STATION + TIMESTAMP COMBINATIONS
+------------------------------------------------------------
+Duplicate Count: 0
+
+5. TARGET VARIABLE (target_load_kwh) RANGE
+------------------------------------------------------------
+Minimum target_load_kwh: 40.2941 kWh
+Maximum target_load_kwh: 302.8064 kWh
+
+6. STATION COUNTS (ROWS PER STATION)
+------------------------------------------------------------
+ - Casey               : 8591 rows
+ - Davis               : 8591 rows
+ - Mawson              : 8591 rows
+ - Macquarie Island    : 8591 rows
+
+7. STATION ISOLATION CONFIRMATION
+------------------------------------------------------------
+Confirmed: YES.
+Lags (1, 3, 6, 24, 168) and rolling means (6, 24) were computed independently
+per station after grouping and sorting strictly by (station, timestamp_utc).
+No values from any station ever crossed into another station's calculations.
+
+8. NO FUTURE TARGET INFORMATION LEAKAGE CONFIRMATION
+------------------------------------------------------------
+Confirmed: YES.
+- target_load_kwh is strictly the next hour's electricity_load_kwh (t + 1).
+- Lags (load_lag_1, load_lag_3, load_lag_6, load_lag_24, load_lag_168) use only
+  historical time steps t-1, t-3, t-6, t-24, t-168.
+- Rolling means (load_rolling_mean_6, load_rolling_mean_24) are strictly trailing windows
+  ending at time t (current hour), completely excluding t+1 (the target).
+- No future target information was used in the feature matrix.
+============================================================

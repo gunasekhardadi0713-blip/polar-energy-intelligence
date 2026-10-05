@@ -1,0 +1,2 @@
+rows,stations,months,hourly_rows_expected,monthly_total_max_absolute_error_kwh,negative_load_rows,negative_generation_rows
+35040,4,12,35040,0.001999999993131496,0,0

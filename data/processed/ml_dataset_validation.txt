@@ -1,0 +1,78 @@
+============================================================
+SIH 2026 PS 26061 - Phase 1 ML Dataset Validation Report
+============================================================
+Source File: data/final/ps26061_prototype_hourly_2010.csv
+Processed Dataset: data/processed\ps26061_ml_dataset.csv
+
+1. GENERAL DATASET METRICS
+------------------------------------------------------------
+Number of Rows: 35040
+Number of Columns: 12
+Duplicate Station + Timestamp Combinations: 0
+Timestamp Range: 2010-01-01 00:00:00 to 2010-12-31 23:00:00
+
+2. COLUMNS RETAINED & RENAMED
+------------------------------------------------------------
+ - timestamp_utc
+ - station
+ - latitude
+ - longitude
+ - year
+ - month
+ - day
+ - hour
+ - temperature_c (renamed from temperature_c_derived)
+ - wind_speed_ms (renamed from wind_speed_ms_derived)
+ - solar_irradiance_wm2 (renamed from solar_irradiance_wm2_derived)
+ - electricity_load_kwh (renamed from electricity_load_kwh_derived)
+
+3. MISSING VALUES PER COLUMN
+------------------------------------------------------------
+ - timestamp_utc: 0 missing
+ - station: 0 missing
+ - latitude: 0 missing
+ - longitude: 0 missing
+ - year: 0 missing
+ - month: 0 missing
+ - day: 0 missing
+ - hour: 0 missing
+ - temperature_c: 0 missing
+ - wind_speed_ms: 0 missing
+ - solar_irradiance_wm2: 0 missing
+ - electricity_load_kwh: 0 missing
+
+4. STATION COUNTS (ROWS PER STATION)
+------------------------------------------------------------
+ - Casey: 8760 rows
+ - Davis: 8760 rows
+ - Mawson: 8760 rows
+ - Macquarie Island: 8760 rows
+
+5. NUMERICAL FEATURE RANGES (MIN / MAX)
+------------------------------------------------------------
+ - latitude                 : min =     -68.5766, max =     -54.6198
+ - longitude                : min =      62.8738, max =     158.8609
+ - year                     : min =    2010.0000, max =    2010.0000
+ - month                    : min =       1.0000, max =      12.0000
+ - day                      : min =       1.0000, max =      31.0000
+ - hour                     : min =       0.0000, max =      23.0000
+ - temperature_c            : min =     -26.5400, max =      10.4030
+ - wind_speed_ms            : min =       1.8300, max =      21.2980
+ - solar_irradiance_wm2     : min =       0.0000, max =     661.8100
+ - electricity_load_kwh     : min =      40.2941, max =     302.8064
+
+6. NON-NEGATIVITY CONSTRAINT VALIDATION
+------------------------------------------------------------
+ - electricity_load_kwh negative values : 0
+ - wind_speed_ms negative values         : 0
+ - solar_irradiance_wm2 negative values  : 0
+All non-negativity constraints satisfied: YES
+
+7. VERIFICATION SUMMARY
+------------------------------------------------------------
+ - Original CSV modified: NO
+ - Artificial values created: NO
+ - Missing values found: 0
+ - Duplicates found: 0
+ - Dataset status: READY FOR PHASE 2 ML / MODELING
+============================================================

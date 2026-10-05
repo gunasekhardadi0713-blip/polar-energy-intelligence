@@ -1,0 +1,11 @@
+# API Validation checklist
+
+- [x] FastAPI import succeeds (`from backend.main import app`).
+- [x] All endpoint routes are registered (health, stations, summary, summary/{station}, forecast/load/{station}, forecast/renewable/{station}, optimization/{station}).
+- [x] CORS middleware includes localhost:3000.
+- [x] Query parameter `limit` defaults to 100 and enforces 1‑2000 range.
+- [x] Invalid station returns HTTP 404.
+- [x] Response models match schemas defined in `backend/schemas.py`.
+- [x] No extra packages were installed beyond FastAPI and uvicorn.
+
+This file records the validation steps performed after implementation.

@@ -1,0 +1,3 @@
+# Reproducibility note
+# This script is represented by the dataset-generation logic used for the prototype file.
+# The resulting hourly file is source-grounded but derived; see docs/dataset_dictionary.md.

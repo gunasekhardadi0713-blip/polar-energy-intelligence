@@ -1,0 +1,96 @@
+============================================================
+SIH 2026 PS 26061 - Energy Dispatch Optimization Summary
+============================================================
+DATASET PROTOCOL DECLARATION:
+All renewable generation targets represent prototype-derived / simulated
+data for PS26061 and are treated strictly as simulation proxies.
+
+1. EXECUTIVE OVERALL DISPATCH SUMMARY
+------------------------------------------------------------
+Total Test Rows Processed    : 6876 (1,719 rows * 4 stations)
+Baseline Diesel Fuel Demand  :     281,981.37 Liters
+Optimized Diesel Fuel Demand :     169,404.62 Liters
+Total Diesel Fuel Saved      :     112,576.74 Liters
+Overall Fuel Saving Percent  :          39.92 %
+
+2. ENERGY GENERATION & UTILIZATION SUMMARY
+------------------------------------------------------------
+Total Electrical Load Demand :   1,007,076.30 kWh
+Total Predicted Renewable    :     598,856.52 kWh
+Renewable Directly to Load   :     387,679.08 kWh
+Renewable Stored to Battery  :      14,718.66 kWh
+Curtailed Renewable Energy   :     196,458.78 kWh
+Overall Renewable Utilization:          67.19 %
+
+3. BATTERY & DIESEL DISPATCH METRICS
+------------------------------------------------------------
+Total Battery Energy Charged :      14,718.66 kWh
+Total Battery Delivered Load :      14,380.71 kWh
+Total Diesel Energy to Load  :     605,016.51 kWh
+Battery Round-Trip Losses    :         337.96 kWh (due to 0.95 charge/discharge efficiencies)
+Global Battery SOC Range     : [150.00, 1500.00] kWh (Limits: [150.0, 1500.0] kWh)
+Simultaneous Charge/Discharge: 0 occurrences (Strict mutual exclusion)
+
+4. STATION-WISE DETAILED BREAKDOWN
+------------------------------------------------------------
+Station: Casey
+  Total Test Timesteps      : 1719
+  Total Electrical Load     :   351,450.69 kWh
+  Baseline Diesel Fuel      :    98,406.19 L
+  Optimized Diesel Fuel     :    81,121.32 L
+  Diesel Fuel Saved         :    17,284.87 L (17.56% savings)
+  Renewable Generation      :    61,164.66 kWh
+  Renewable Supplied to Load:    61,134.08 kWh
+  Curtailed Renewable Energy:         0.00 kWh
+  Renewable Utilization     : 100.00%
+  Battery Energy Charged    :        30.58 kWh
+  Battery Delivered to Load :       597.60 kWh
+  Diesel Energy to Load     :   289,719.01 kWh
+  Battery SOC Bounds        : [150.00, 595.21] kWh
+
+Station: Davis
+  Total Test Timesteps      : 1719
+  Total Electrical Load     :   337,863.24 kWh
+  Baseline Diesel Fuel      :    94,601.71 L
+  Optimized Diesel Fuel     :    81,098.53 L
+  Diesel Fuel Saved         :    13,503.17 L (14.27% savings)
+  Renewable Generation      :    47,655.62 kWh
+  Renewable Supplied to Load:    47,655.62 kWh
+  Curtailed Renewable Energy:         0.00 kWh
+  Renewable Utilization     : 100.00%
+  Battery Energy Charged    :         0.00 kWh
+  Battery Delivered to Load :       570.00 kWh
+  Diesel Energy to Load     :   289,637.62 kWh
+  Battery SOC Bounds        : [150.00, 649.83] kWh
+
+Station: Macquarie Island
+  Total Test Timesteps      : 1719
+  Total Electrical Load     :    97,230.96 kWh
+  Baseline Diesel Fuel      :    27,224.67 L
+  Optimized Diesel Fuel     :     7,184.77 L
+  Diesel Fuel Saved         :    20,039.90 L (73.61% savings)
+  Renewable Generation      :    71,303.06 kWh
+  Renewable Supplied to Load:    68,205.74 kWh
+  Curtailed Renewable Energy:         0.00 kWh
+  Renewable Utilization     : 100.00%
+  Battery Energy Charged    :     3,097.32 kWh
+  Battery Delivered to Load :     3,365.34 kWh
+  Diesel Energy to Load     :    25,659.89 kWh
+  Battery SOC Bounds        : [150.00, 875.58] kWh
+
+Station: Mawson
+  Total Test Timesteps      : 1719
+  Total Electrical Load     :   220,531.41 kWh
+  Baseline Diesel Fuel      :    61,748.79 L
+  Optimized Diesel Fuel     :         0.00 L
+  Diesel Fuel Saved         :    61,748.79 L (100.00% savings)
+  Renewable Generation      :   418,733.17 kWh
+  Renewable Supplied to Load:   210,683.64 kWh
+  Curtailed Renewable Energy:   196,458.78 kWh
+  Renewable Utilization     : 53.08%
+  Battery Energy Charged    :    11,590.75 kWh
+  Battery Delivered to Load :     9,847.77 kWh
+  Diesel Energy to Load     :         0.00 kWh
+  Battery SOC Bounds        : [994.31, 1500.00] kWh
+
+============================================================
